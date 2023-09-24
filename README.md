@@ -14,7 +14,7 @@ To build the project:
 mkdir build
 cd build
 cmake ..
-make -j4
+make -j`nproc`
 ```
 
 This should create the `orecart_hw.uf2` file that can be flashed to your RP2040 hardware.

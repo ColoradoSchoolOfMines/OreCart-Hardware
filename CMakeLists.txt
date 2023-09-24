@@ -2,7 +2,16 @@ cmake_minimum_required(VERSION 3.13)
 
 set(FREERTOS_KERNEL_PATH ${CMAKE_SOURCE_DIR}/kernel/FreeRTOS-Kernel)
 
-include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+if (DEFINED ENV{PICO_SDK_PATH} AND (NOT PICO_SDK_PATH))
+    set(PICO_SDK_PATH $ENV{PICO_SDK_PATH})
+    message("Using PICO_SDK_PATH from environment ('${PICO_SDK_PATH}')")
+endif ()
+
+if (NOT PICO_SDK_PATH)
+    message(FATAL_ERROR "SDK location was not specified. Please set PICO_SDK_PATH env variable.")
+endif()
+
+include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
 include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
