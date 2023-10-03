@@ -19,14 +19,17 @@ project(app C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
+
 # Initialize the SDK
 pico_sdk_init()
 
 add_executable(orecart_hw main.c)
-
-target_include_directories(orecart_hw PRIVATE ${CMAKE_CURRENT_LIST_DIR}/kernel)
- 
 target_link_libraries(orecart_hw pico_stdlib FreeRTOS-Kernel FreeRTOS-Kernel-Heap4)
+target_include_directories(orecart_hw PRIVATE ${CMAKE_CURRENT_LIST_DIR}/kernel)
+
+# enable usb output, disable uart output
+pico_enable_stdio_usb(orecart_hw 1)
+pico_enable_stdio_uart(orecart_hw 0)
 
 # create map/bin/hex/uf2 file etc.
 pico_add_extra_outputs(orecart_hw)
