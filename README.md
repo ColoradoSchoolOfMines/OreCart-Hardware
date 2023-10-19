@@ -5,18 +5,9 @@
 This repo contains the code to run on the embedded hardware inside the OreCart buses.
 
 ## About
-The hardware is based around the RP2040 (ARM Cortex M0+).
-FreeRTOS is used as the underlying real-time operating system.
-
+The hardware is based around the nRF9160, which combines
+This project is also built to be compatible with the RP2040 connected to a SIM7080G.
+Zephyr is used as the underlying real-time operating system.
 
 ## Environment Setup
-It is recommended to complete the setup with [VS Code](#Visual-Studio-Code), but it can also be completed with the command-line tools.
-
-### Visual Studio Code
-Install the [nRF Connect Extension Pack](https://marketplace.visualstudio.com/items?itemName=nordic-semiconductor.nrf-connect-extension-pack), this will prompt you to install the nRF toolchain and SDK (both of which are necessary).
-
-### Command-line Tools
-
-
-## Building
-
+Please see [SETUP.md](SETUP.md)
