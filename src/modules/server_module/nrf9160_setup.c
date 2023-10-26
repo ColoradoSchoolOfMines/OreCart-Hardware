@@ -1,12 +1,17 @@
 // The nRF9160 is one odd duck in the flock.
 // Unlike its friends, it refuses to bring a driver dish to the kernel potluck, so we're DIY-ing it right here.
 
-#include <nrf_modem.h>
 #include <modem/lte_lc.h>
 #include <modem/modem_info.h>
+#include <modem/modem_key_mgmt.h>
 #include <modem/nrf_modem_lib.h>
 #include <modem/pdn.h>
-#include <modem/modem_key_mgmt.h>
+#include <nrf_errno.h>
+#include <nrf_modem.h>
+#include <zephyr/logging/log.h>
+
+#include <stdio.h>
+#include <errno.h>
 
 #include "server_module.h"
 
@@ -14,7 +19,7 @@ static const char cert[] = {
 #include "../../../res/cert/DigiCertGlobalRootCA.pem"
 };
 
-NRF_MODEM_LIB_ON_INIT(orecart_init_hook, on_modem_lib_init, NULL);
+// NRF_MODEM_LIB_ON_INIT(orecart_init_hook, on_modem_lib_init, NULL);
 
 #define TLS_SEC_TAG 42
 
@@ -66,7 +71,7 @@ int cert_provision(void)
 		mismatch = modem_key_mgmt_cmp(TLS_SEC_TAG, MODEM_KEY_MGMT_CRED_TYPE_CA_CHAIN, cert,
 					      strlen(cert));
 		if (!mismatch) {
-			printk("Certificate match\n");
+			printk("Certificate match!\n");
 			return 0;
 		}
 
@@ -90,15 +95,19 @@ int cert_provision(void)
 	return 0;
 }
 
-static void on_modem_lib_init(int ret, void *ctx)
-{
+void init_nrf9160_modem() {
+	printk("Initializing the nRF910 modem....\r\n");
 	int err;
 
-	if (ret != 0) return;
+	err = nrf_modem_lib_init();
+	if (err) {
+		printk("Modem library initialization failed, error: %d\n", err);
+		return 0;
+	}
 
     err = pdn_default_ctx_cb_reg(pdn_event_handler);
 	if (err) {
-		LOG_ERR("pdn_default_ctx_cb_reg, error: %d", err);
+		printk("pdn_default_ctx_cb_reg, error: %d", err);
 		return;
 	}
 
@@ -107,11 +116,15 @@ static void on_modem_lib_init(int ret, void *ctx)
 		return 0;
 	}
 
+	printk("Waiting for network.. \r\n");
+
     err = lte_lc_init_and_connect();
 	if (err) {
 		printk("Failed to connect to the LTE network, err %d\n", err);
 		return;
 	}
+
+	printk("nRF9160 successfully connected to the LTE network!\r\n");
 	
 
 	k_sem_give(&modem_available);
