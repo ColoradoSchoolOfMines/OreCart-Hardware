@@ -3,7 +3,7 @@
 
 #define LED0_NODE DT_ALIAS(led0)
 
-#define SLEEP_TIME_MS 200
+#define SLEEP_TIME_MS 2000
 
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 
@@ -19,12 +19,12 @@ int main() {
 		return 0;
 	}
 
+	const struct device *dev;
+	uint32_t dtr = 0;
+
 	while (1) {
-		ret = gpio_pin_toggle_dt(&led);
-		if (ret < 0) {
-			return 0;
-		}
-		k_msleep(SLEEP_TIME_MS);
+		k_sleep(K_SECONDS(1));
 	}
+
 	return 0;
 }
