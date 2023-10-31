@@ -14,7 +14,7 @@ set(SRC_FILES
 
     ## Modules
     # Server Module
-    src/modules/server_module/nrf9160_setup.c
+    # src/modules/server_module/nrf9160_setup.c
 )
 
 # NORDIC SDK APP START
