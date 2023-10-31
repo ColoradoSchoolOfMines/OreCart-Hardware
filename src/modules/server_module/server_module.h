@@ -6,7 +6,7 @@
 
 #define SERVER_HOST "<URL>"
 #define PROTOCOL "HTTP"
-
+#define 
 
 #define SEND_VAN_LOCATION_ROUTE "/location/"
 #define SEND_OCCUPANCY_ROUTE "/states/ridership/"
