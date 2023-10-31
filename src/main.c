@@ -23,7 +23,7 @@ int main() {
 	}
 
 #if defined(CONFIG_NRF_MODEM_LIB)
-	init_nrf9160_modem();
+	// init_nrf9160_modem();
 #endif
 
 	while (1) {
