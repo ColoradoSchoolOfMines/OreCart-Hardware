@@ -1,4 +1,4 @@
 struct Location {
     double lat;
-    double long;
+    double lon;
 }
