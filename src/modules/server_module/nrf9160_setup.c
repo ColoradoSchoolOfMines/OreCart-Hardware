@@ -1,6 +1,8 @@
 // The nRF9160 is one odd duck in the flock.
 // Unlike its friends, it refuses to bring a driver dish to the kernel potluck, so we're DIY-ing it right here.
 
+#if defined(CONFIG_NRF_MODEM_LIB)
+
 #include <modem/lte_lc.h>
 #include <modem/modem_info.h>
 #include <modem/modem_key_mgmt.h>
@@ -102,7 +104,7 @@ void init_nrf9160_modem() {
 	err = nrf_modem_lib_init();
 	if (err) {
 		printk("Modem library initialization failed, error: %d\n", err);
-		return 0;
+		return;
 	}
 
     err = pdn_default_ctx_cb_reg(pdn_event_handler);
@@ -113,7 +115,7 @@ void init_nrf9160_modem() {
 
 	err = cert_provision();
 	if (err) {
-		return 0;
+		return;
 	}
 
 	printk("Waiting for network.. \r\n");
@@ -127,5 +129,7 @@ void init_nrf9160_modem() {
 	printk("nRF9160 successfully connected to the LTE network!\r\n");
 	
 
-	k_sem_give(&modem_available);
+	k_sem_give(&is_modem_available);
 }
+
+#endif
