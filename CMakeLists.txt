@@ -10,11 +10,12 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(https_client)
 
 set(SRC_FILES
-    src/main.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
 
     ## Modules
     # Server Module
-    # src/modules/server_module/nrf9160_setup.c
+    src/modules/server_module/nrf9160_setup.c
+    src/modules/server_module/server_module.c
 )
 
 # NORDIC SDK APP START
