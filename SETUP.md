@@ -92,6 +92,11 @@ newtmgr -c serial reset
 
 The first command actually flashes the ROM of the board, while the second resets the board so the project is actually executed.
 
+# Developing without a board
+
+This can be done with the POSIX target.
+*IMPORTANT*: You need to run `/ncs/v2.4.2/tools/net-tools/net-setup.sh` in order to setup networking.
+
 # FAQs
 ## Why doesn't the Zephyr Connect extension detect/flash the board?
 This extension was designed for the nRF9160 Development Kit (DK).

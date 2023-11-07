@@ -42,17 +42,20 @@ int main() {
 #endif
 
 	struct VanInfo van_info = {
-		.van_id = 1,
-		.van_id_str = "001"
+		.van_id = 1
 	};
 
 	while (1) {
-		k_sleep(K_SECONDS(15));
 		// printk("Beep\r\n");
 	#ifndef POSIX_MODE
 		gpio_pin_toggle_dt(&led);
 	#endif
 		server_send_van_location(&van_info, (struct Location){.lat = 213.12, .lon=20.123}, 100);
+		k_sleep(K_SECONDS(50));
+	}
+
+	while (1) {
+		k_sleep(K_SECONDS(15));
 	}
 
 	return 0;
