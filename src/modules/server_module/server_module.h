@@ -5,10 +5,10 @@
 #include "../../common/location.h"
 #include "../../common/van_info.h"
 
-#define SERVER_HOST "wpodev.intergonic.com"
-#define SERVER_PORT "8888"
+#define SERVER_HOST "192.0.2.2"
+#define SERVER_PORT 8000
 
-#define PROTOCOL "HTTP"
+#define PROTOCOL "HTTP/1.1"
 #define TIMEOUT 5000
 
 #define SEND_VAN_LOCATION_ROUTE "/location/"
