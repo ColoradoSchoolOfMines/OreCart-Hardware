@@ -5,13 +5,17 @@
 #include "../../common/location.h"
 #include "../../common/van_info.h"
 
-#define SERVER_HOST "192.0.2.2"
+#define SERVER_HOST "orecart.local"
 #define SERVER_PORT 8000
+
+// #define SERVER_HOST "142.251.41.14"
+// #define SERVER_PORT 80
 
 #define PROTOCOL "HTTP/1.1"
 #define TIMEOUT 5000
 
 #define SEND_VAN_LOCATION_ROUTE "/location/"
+// #define SEND_VAN_LOCATION_ROUTE "/"
 #define SEND_OCCUPANCY_ROUTE "/states/ridership/"
 
 extern struct k_sem is_modem_available;
