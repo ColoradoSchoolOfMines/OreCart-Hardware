@@ -138,16 +138,23 @@ static void server_work_handler(struct k_work* work) {
 		.ai_socktype = SOCK_STREAM,
 	};
 
-    // int err = getaddrinfo(SERVER_HOST, SERVER_PORT, &hints, &res);
-	// if (err) {
-	// 	printk("getaddrinfo() failed, err %d\n", errno);
-	// 	return;
-	// }
+    int err = getaddrinfo(SERVER_HOST, NULL, &hints, &res);
+	if (err) {
+		printk("getaddrinfo() failed, err %d   %d\n", errno, err);
+		return;
+	}
+
+    char peer_addr[INET6_ADDRSTRLEN];
+
+    inet_ntop(res->ai_family, &((struct sockaddr_in *)(res->ai_addr))->sin_addr, peer_addr,
+		  INET6_ADDRSTRLEN);
+
+    printk("Address Resolved!!! %s\r\n", peer_addr);
 
     struct sockaddr_in addr4;
 
 	// err = connect(request->sock, res->ai_addr, res->ai_addrlen);
-    int err = connect_socket(AF_INET, SERVER_HOST, SERVER_PORT,
+    err = connect_socket(AF_INET, peer_addr, SERVER_PORT,
 				     &request->sock, (struct sockaddr *)&addr4,
 				     sizeof(addr4));
 
