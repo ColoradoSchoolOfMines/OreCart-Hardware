@@ -30,6 +30,7 @@ static int setup_socket(sa_family_t family, const char *server, int port,
 
 		*sock = socket(family, SOCK_STREAM, IPPROTO_TLS_1_2);
 		if (*sock >= 0) {
+			printk("Attemping TLS....\r\n");
 			ret = setsockopt(*sock, SOL_TLS, TLS_SEC_TAG_LIST,
 					 sec_tag_list, sizeof(sec_tag_list));
 			if (ret < 0) {

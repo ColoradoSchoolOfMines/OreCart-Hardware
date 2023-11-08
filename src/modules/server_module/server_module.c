@@ -10,6 +10,10 @@
 #include "../../common/van_info.h"
 #include "../../common/tools.h"
 
+static const char cert[] = {
+#include "../../../res/cert/ServerPublic.pem"
+};
+
 #define MAX_INFLIGHT_REQUESTS 3
 #define PAYLOAD_MAX_SIZE 64
 #define MAX_URL_LEN 32
