@@ -223,7 +223,7 @@ bool server_send_van_location(VanInfo* vanInfo, struct Location location, uint64
     // Construct the route url, we need to append the van id at the end
     strcpy(request->url, SEND_VAN_LOCATION_ROUTE);
     strcat(request->url, vanIdStr);
-    request->expiration = k_uptime_get() + 10000; // 10 second expiration
+    request->expiration = k_uptime_get() + 100; // 10 second expiration
     request->tries = 10; // Try maximum 10 times.
 
     struct http_request* http_req = &request->http_req;

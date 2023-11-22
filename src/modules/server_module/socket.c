@@ -1,7 +1,15 @@
 #include <zephyr/net/socket.h>
 #include <zephyr/net/tls_credentials.h>
 
+#include <mbedtls/platform.h>
+#include <mbedtls/ssl_ciphersuites.h>
+
 #include "server_module.h"
+
+static const char cert[] = {
+#include "server.der.inc"
+};
+
 
 #define TLS_SEC_TAG 42
 
@@ -28,25 +36,52 @@ static int setup_socket(sa_family_t family, const char *server, int port,
 			TLS_SEC_TAG,
 		};
 
+		int ciphersuite_list[] = {
+			MBEDTLS_TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+			MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
+			MBEDTLS_TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256
+		};
+
 		*sock = socket(family, SOCK_STREAM, IPPROTO_TLS_1_2);
+		
+		ret = tls_credential_add(sec_tag_list[0], TLS_CREDENTIAL_CA_CERTIFICATE, cert, sizeof(cert));
+
+		if (ret < 0) {
+			printk("Failed to registed certificate!\r\n");
+		} else {
+			printk("Successfully registed certificate\r\n");
+		}
+
+		struct timeval timeout = {
+			.tv_sec = 5
+		};
+
 		if (*sock >= 0) {
 			printk("Attemping TLS....\r\n");
-			ret = setsockopt(*sock, SOL_TLS, TLS_SEC_TAG_LIST,
-					 sec_tag_list, sizeof(sec_tag_list));
+
+			// ret = setsockopt(*sock, SOL_TLS, TLS_CIPHERSUITE_LIST, &ciphersuite_list, sizeof(ciphersuite_list));
+
+			ret = setsockopt(*sock, SOL_TLS, TLS_SEC_TAG_LIST, sec_tag_list, sizeof(sec_tag_list));
 			if (ret < 0) {
-				printk("Failed to set %s secure option (%d)",
-					family_str, -errno);
+				printk("Failed to set %s secure option (%d)", family_str, -errno);
 				ret = -errno;
 			}
 
-			ret = setsockopt(*sock, SOL_TLS, TLS_HOSTNAME,
-					 SERVER_HOST,
-					 sizeof(SERVER_HOST));
+			ret = setsockopt(*sock, SOL_TLS, TLS_HOSTNAME, SERVER_HOST, sizeof(SERVER_HOST));
 			if (ret < 0) {
-				printk("Failed to set %s TLS_HOSTNAME "
-					"option (%d)", family_str, -errno);
+				printk("Failed to set %s TLS_HOSTNAME option (%d)", family_str, -errno);
 				ret = -errno;
 			}
+
+			int peer_verify = 0;
+			ret = setsockopt(*sock, SOL_TLS, TLS_PEER_VERIFY, &peer_verify, sizeof(peer_verify));
+			if (ret < 0) {
+				printk("Failed to set to NOVERIFY!\r\n");
+				ret = -errno;
+			}
+
+			setsockopt(*sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+			setsockopt(*sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
 		}
 	} else {
 		*sock = socket(family, SOCK_STREAM, IPPROTO_TCP);

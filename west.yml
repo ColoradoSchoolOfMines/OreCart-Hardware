@@ -1,0 +1,21 @@
+manifest:
+  self:
+    path: application
+  remotes:
+    - name: sdk
+      url-base: https://github.com/nrfconnect
+    - name: wolfssl
+      url-base: https://github.com/wolfssl
+  projects:
+    - name: sdk-nrf
+      remote: sdk
+      path: nrf
+      revision: v2.5.0
+      import:
+        path-prefix: external
+      clone-depth: 1
+    - name: wolfssl
+      path: modules/crypto/wolfssl
+      revision: v5.6.4-stable
+      remote: wolfssl
+      clone-depth: 1

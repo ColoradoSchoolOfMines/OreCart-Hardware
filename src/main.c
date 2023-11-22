@@ -1,11 +1,12 @@
 #include <zephyr/kernel.h>
 
-
 #include "modules/server_module/nrf9160_setup.h"
 #include "modules/server_module/server_module.h"
 
 #include "common/van_info.h"
 #include "common/location.h"
+
+#include "modules/server_module/net_tools.h"
 
 #define POSIX_MODE
 
