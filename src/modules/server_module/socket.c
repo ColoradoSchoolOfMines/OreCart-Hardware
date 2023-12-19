@@ -7,11 +7,18 @@
 #include "server_module.h"
 
 static const char cert[] = {
-#include "server.der.inc"
+#include "server_dos.der.inc"
+// #include "../../../res/cert/DigiCertGlobalRootCA.pem"
 };
 
+char hostName[] = SERVER_HOST;
 
-#define TLS_SEC_TAG 42
+#define TLS_SEC_TAG 1
+
+sec_tag_t sec_tag_list[] = {
+	TLS_SEC_TAG,
+};
+
 
 static int setup_socket(sa_family_t family, const char *server, int port,
 			int *sock, struct sockaddr *addr, socklen_t addr_len)
@@ -32,10 +39,7 @@ static int setup_socket(sa_family_t family, const char *server, int port,
 	}
 
 	if (IS_ENABLED(CONFIG_NET_SOCKETS_SOCKOPT_TLS)) {
-		sec_tag_t sec_tag_list[] = {
-			TLS_SEC_TAG,
-		};
-
+	
 		int ciphersuite_list[] = {
 			MBEDTLS_TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
 			MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
@@ -43,6 +47,8 @@ static int setup_socket(sa_family_t family, const char *server, int port,
 		};
 
 		*sock = socket(family, SOCK_STREAM, IPPROTO_TLS_1_2);
+
+		printk("BOB: %d %d\r\n", strlen(cert), sizeof(cert));
 		
 		ret = tls_credential_add(sec_tag_list[0], TLS_CREDENTIAL_CA_CERTIFICATE, cert, sizeof(cert));
 
@@ -67,7 +73,7 @@ static int setup_socket(sa_family_t family, const char *server, int port,
 				ret = -errno;
 			}
 
-			ret = setsockopt(*sock, SOL_TLS, TLS_HOSTNAME, SERVER_HOST, sizeof(SERVER_HOST));
+			ret = setsockopt(*sock, SOL_TLS, TLS_HOSTNAME, &hostName, sizeof(SERVER_HOST));
 			if (ret < 0) {
 				printk("Failed to set %s TLS_HOSTNAME option (%d)", family_str, -errno);
 				ret = -errno;

@@ -24,8 +24,8 @@ set(SRC_FILES
 
 generate_inc_file_for_target(
     app
-    res/cert/server.der
-    ${gen_dir}/server.der.inc
+    res/cert/server_dos.der
+    ${gen_dir}/server_dos.der.inc
 )
 
 # NORDIC SDK APP START
