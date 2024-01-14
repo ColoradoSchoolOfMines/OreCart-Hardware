@@ -99,19 +99,12 @@ int cert_provision(void)
 
 void init_nrf9160_modem() {
 	printk("Initializing the nRF910 modem....\r\n");
-	int err;
 
-	err = nrf_modem_lib_init();
+	int err = nrf_modem_lib_init();
 	if (err) {
 		printk("Modem library initialization failed, error: %d\n", err);
 		return;
 	}
-
-    // err = pdn_default_ctx_cb_reg(pdn_event_handler);
-	// if (err) {
-	// 	printk("pdn_default_ctx_cb_reg, error: %d", err);
-	// 	return;
-	// }
 
 	err = cert_provision();
 	if (err) {

@@ -26,9 +26,8 @@ int main() {
 	printk("Welcome to the OreCart Hardware Project!\r\n");
     int ret;
 
-	server_module_init();
+	net_module_init();
 
-#ifndef POSIX_MODE
     if (!gpio_is_ready_dt(&led)) {
         return 0;
     }
@@ -37,21 +36,12 @@ int main() {
 	if (ret < 0) {
 		return 0;
 	}
-#endif
-
-#if defined(CONFIG_NRF_MODEM_LIB)
-	init_nrf9160_modem();
-#endif
 
 	struct VanInfo van_info = {
 		.van_id = 1
 	};
 
 	while (1) {
-	#ifndef POSIX_MODE
-		// gpio_pin_toggle_dt(&led);
-	#endif
-
 		server_send_van_location(&van_info, (struct Location){.lat=213.12, .lon=20.123}, 100);
 		k_sleep(K_SECONDS(100));
 	}
