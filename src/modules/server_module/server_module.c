@@ -12,6 +12,7 @@
 
 static const char cert[] = {
 #include "../../../res/cert/ServerPublic.pem"
+
 };
 
 #define MAX_INFLIGHT_REQUESTS 3
@@ -19,7 +20,7 @@ static const char cert[] = {
 #define MAX_URL_LEN 32
 #define MAX_RESP_LEN 128
 
-#define _STACK_SIZE 256
+#define _STACK_SIZE 1024
 #define _PRIORITY 5
 
 K_THREAD_STACK_DEFINE(server_stack_area, _STACK_SIZE);
@@ -57,9 +58,9 @@ struct OreCartRequest {
     char resp_buffer[MAX_RESP_LEN];
 };
 
-typedef struct OreCartRequest OreCartRequest;
+// typedef struct OreCartRequest OreCartRequest;
 
-OreCartRequest* inflight_requests[MAX_INFLIGHT_REQUESTS]; // All buffers available by default
+struct OreCartRequest* inflight_requests[MAX_INFLIGHT_REQUESTS]; // All buffers available by default
 
 K_SEM_DEFINE(is_modem_available, 0, 1);
 
@@ -138,8 +139,8 @@ static void server_work_handler(struct k_work* work) {
 
     struct addrinfo *res;
 	struct addrinfo hints = {
-		.ai_flags = AI_NUMERICSERV, /* Let getaddrinfo() set port */
-		.ai_socktype = SOCK_STREAM,
+		.ai_family = AF_INET,
+        .ai_socktype = SOCK_STREAM,
 	};
 
     int err = getaddrinfo(SERVER_HOST, NULL, &hints, &res);
@@ -148,19 +149,10 @@ static void server_work_handler(struct k_work* work) {
 		return;
 	}
 
-    char peer_addr[INET6_ADDRSTRLEN];
-
-    inet_ntop(res->ai_family, &((struct sockaddr_in *)(res->ai_addr))->sin_addr, peer_addr,
-		  INET6_ADDRSTRLEN);
-
-    printk("Address Resolved!!! %s\r\n", peer_addr);
-
-    struct sockaddr_in addr4;
+    ((struct sockaddr_in *)res->ai_addr)->sin_port = htons(SERVER_PORT);
 
 	// err = connect(request->sock, res->ai_addr, res->ai_addrlen);
-    err = connect_socket(AF_INET, peer_addr, SERVER_PORT,
-				     &request->sock, (struct sockaddr *)&addr4,
-				     sizeof(addr4));
+    err = connect_socket(res->ai_family, res->ai_addr, SERVER_HOST, &request->sock);
 
 	if (err) {
 		printk("connect_socket() failed, err: %d\n", errno);
@@ -194,16 +186,14 @@ void server_module_init() {
 
 bool server_send_van_location(VanInfo* vanInfo, struct Location location, uint64_t ts) {
     // This will need to stay allocated until the work is finished (ie: HTTP response received)
-    OreCartRequest* request = malloc(sizeof(OreCartRequest));
+    uint32_t* p_request = k_malloc(sizeof(struct OreCartRequest));
+
+    if (p_request == NULL) {
+        printk("Allocation Failed!\r\n");
+    }
 
     printk("Sending location...\r\n");
 
-    // Handle memory allocation failure
-    if (request == NULL) {
-        printk("Memory allocation failure.\r\n");
-        return false;
-    }
-    
     // Order types from largest to smallest for data packing.
     struct VanLocationPayload {
         double lat;
@@ -214,6 +204,8 @@ bool server_send_van_location(VanInfo* vanInfo, struct Location location, uint64
     payload.lat = location.lat;
     payload.lon = location.lon;
     payload.ts = ts;
+
+    struct OreCartRequest* request = (struct OreCartRequest*)p_request;
 
     memcpy(&request->payload, &payload, sizeof(struct VanLocationPayload));
 
@@ -227,12 +219,21 @@ bool server_send_van_location(VanInfo* vanInfo, struct Location location, uint64
     request->tries = 10; // Try maximum 10 times.
 
     struct http_request* http_req = &request->http_req;
+    memset(http_req, 0, sizeof(request->http_req));
+
+    char *const headers[] = {
+        "Connection: close\r\n",
+        NULL
+    };
+
     http_req->method = HTTP_POST;
     http_req->url = request->url;
     http_req->host = SERVER_HOST;
     http_req->protocol = PROTOCOL;
     http_req->payload_len = sizeof(struct VanLocationPayload);
     http_req->payload = request->payload;
+    http_req->content_type_value = "application/json";
+    http_req->header_fields = (const char **)headers;
 
     k_work_init(&request->work, server_work_handler);
     k_work_submit_to_queue(&server_work_q, &request->work);

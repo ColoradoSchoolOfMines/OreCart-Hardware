@@ -5,8 +5,8 @@
 #include "../../common/location.h"
 #include "../../common/van_info.h"
 
-#define SERVER_HOST "orecart.local"
-#define SERVER_PORT 8000
+#define SERVER_HOST "wpodev.intergonic.com"
+#define SERVER_PORT 8888
 
 #define PROTOCOL "HTTP/1.1"
 #define TIMEOUT 4000

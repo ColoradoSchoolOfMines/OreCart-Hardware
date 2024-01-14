@@ -18,7 +18,7 @@
 #include "server_module.h"
 
 static const char cert[] = {
-#include "../../../res/cert/DigiCertGlobalRootCA.pem"
+#include "../../../res/cert/ServerPublic.pem"
 };
 
 // NRF_MODEM_LIB_ON_INIT(orecart_init_hook, on_modem_lib_init, NULL);
@@ -107,11 +107,11 @@ void init_nrf9160_modem() {
 		return;
 	}
 
-    err = pdn_default_ctx_cb_reg(pdn_event_handler);
-	if (err) {
-		printk("pdn_default_ctx_cb_reg, error: %d", err);
-		return;
-	}
+    // err = pdn_default_ctx_cb_reg(pdn_event_handler);
+	// if (err) {
+	// 	printk("pdn_default_ctx_cb_reg, error: %d", err);
+	// 	return;
+	// }
 
 	err = cert_provision();
 	if (err) {
