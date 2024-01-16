@@ -94,7 +94,7 @@ int cert_provision(void) {
 }
 
 void init_nrf9160_modem() {
-	printk("Initializing the nRF910 modem....\r\n");
+	printk("Initializing the nRF9160 modem....\r\n");
 
 	int err = nrf_modem_lib_init();
 	if (err) {

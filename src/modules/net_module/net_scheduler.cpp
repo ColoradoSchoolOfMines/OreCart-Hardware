@@ -143,7 +143,7 @@ inline static void _setup_http(struct NetRequestTask* task, uint8_t* recv_buf, s
     http_req->protocol = PROTOCOL;
     http_req->payload = (const char*)task->request->payload.get();
     http_req->payload_len = task->request->payload_size;
-    http_req->content_type_value = "application/json";
+    http_req->content_type_value = "application/octet-stream";
     http_req->header_fields = (const char **)HEADERS;
     http_req->response = _on_http_response;
     http_req->recv_buf_len = MAX_RESPONSE_LEN;
