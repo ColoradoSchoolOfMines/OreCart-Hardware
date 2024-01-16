@@ -2,15 +2,7 @@
 #include <zephyr/net/tls_credentials.h>
 #include <zephyr/net/net_ip.h>
 
-#include "server_module.h"
 #include "socket.h"
-
-static const char cert[] = {
-#include "server_dos.der.inc"
-// #include "../../../res/cert/DigiCertGlobalRootCA.pem"
-};
-
-const char* hostName = SERVER_HOST;
 
 #define TLS_SEC_TAG 42
 
@@ -36,9 +28,8 @@ const uint32_t SUPPORTED_CIPHERS[] = {
 };
 
 
-static int setup_socket(struct sockaddr_in* family, const char *server, int *sock)
-{
-	printk("Setup socket!\r\n");
+static int setup_socket(int family, const char *hostname, int *sock) {
+	printk("[DEBUG] Setup socket!\n");
 
 	*sock = socket(family, SOCK_STREAM, IPPROTO_TLS_1_2);
 
@@ -51,36 +42,31 @@ static int setup_socket(struct sockaddr_in* family, const char *server, int *soc
 	int ret = setsockopt(*sock, SOL_TLS, TLS_CIPHERSUITE_LIST, &SUPPORTED_CIPHERS, sizeof(SUPPORTED_CIPHERS));
 	if (ret < 0) {
 		printk("Failed to set ciphersuite list");
-		ret -errno;
 	}
 
 	ret = setsockopt(*sock, SOL_TLS, TLS_SEC_TAG_LIST, sec_tag_list, sizeof(sec_tag_list));
 	if (ret < 0) {
 		printk("Failed to set secure option (%d)", -errno);
-		ret = -errno;
 	}
 
-	printk("Hostname %s\r\n", hostName);
+	printk("Hostname %s\r\n", hostname);
 
-	ret = setsockopt(*sock, SOL_TLS, TLS_HOSTNAME, &hostName, sizeof(SERVER_HOST) - 1);
+	ret = setsockopt(*sock, SOL_TLS, TLS_HOSTNAME, &hostname, strlen(hostname) - 1);
 	if (ret < 0) {
 		printk("Failed to set TLS_HOSTNAME option (%d)", -errno);
-		ret = -errno;
 	}
 
 	int peer_verify = 0;
 	ret = setsockopt(*sock, SOL_TLS, TLS_PEER_VERIFY, &peer_verify, sizeof(peer_verify));
 	if (ret < 0) {
 		printk("Failed to set to NOVERIFY!\r\n");
-		ret = -errno;
 	}
 
 	int session_cache = TLS_SESSION_CACHE_ENABLED;
 
 	ret = setsockopt(*sock, SOL_TLS, TLS_SESSION_CACHE, &session_cache,
 					sizeof(session_cache));
-	if (ret < 0)
-	{
+	if (ret < 0) {
 		printk("Failed to setup session cache, err %d", errno);
 	}
 
@@ -88,12 +74,10 @@ static int setup_socket(struct sockaddr_in* family, const char *server, int *soc
 }
 
 
-int connect_socket(sa_family_t family, struct sockaddr* addr, const char *server, int *sock) {
+int connect_socket(int family, struct sockaddr* addr, const char* hostname, int* sock) {
 	int ret;
 
-	printk("Setup Socket!!\r\n");
-
-	ret = setup_socket(family, server, sock);
+	ret = setup_socket(family, hostname, sock);
 	if (ret < 0 || *sock < 0) {
 		return -1;
 	}

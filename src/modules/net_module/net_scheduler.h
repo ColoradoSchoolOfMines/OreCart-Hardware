@@ -4,6 +4,14 @@
 #include <zephyr/net/http/client.h>
 #include <zephyr/net/socket.h>
 
+// #include <memory>
+extern "C" {
+#include "socket.h"
+}
+
+#include "../../common/tools.h"
+#include "../../common/logging.h"
+
 #define PRIORITY 5
 
 #define MAX_INFLIGHT_REQUESTS 3
@@ -12,19 +20,13 @@
 #define STACK_SIZE 1024
 #define TIMEOUT 4000
 
-// Standard header for all requests
-char *const HEADERS[] = {
-    "Connection: close\r\n",
-    NULL
-};
-
 struct Request {
-    char* url;
-    char* host;
+    std::string url;
+    std::string host;
     uint16_t port;
     enum http_method request_type;
 
-    char* payload;
+    std::unique_ptr<uint8_t[]> payload;
     uint32_t payload_size;
 };
 
@@ -45,24 +47,20 @@ struct SchedulerMeta {
 
 // Networking Task
 struct NetRequestTask {
-    struct k_work work; // Every scheduled task needs to be bound to a kernel work instance.
+    // Every scheduled task needs to be bound to a kernel work instance.
+    k_work work;
     
-    struct SchedulerMeta* scheduler_meta;
-    struct Request* request;
+    std::unique_ptr<SchedulerMeta> scheduler_meta;
+    std::unique_ptr<Request> request;
 };
 
 struct InFlightRequest {
     int sock;
-    struct NetRequestTask* net_request_task;
+    NetRequestTask* net_request_task;
     struct http_request http_request;
 
     uint8_t recv_buf[MAX_RESPONSE_LEN];
 };
 
-struct k_work_q net_work_queue;
-
-K_SEM_DEFINE(http_requests_sem, MAX_INFLIGHT_REQUESTS, MAX_INFLIGHT_REQUESTS);
-K_THREAD_STACK_DEFINE(net_stack_area, STACK_SIZE);
-
 void start_scheduler();
-int schedule_request(struct Request* request, struct SchedulerMeta* scheduler_meta);
+void schedule_request(std::unique_ptr<Request> request, std::unique_ptr<SchedulerMeta> scheduler_meta);

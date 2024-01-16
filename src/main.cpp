@@ -1,14 +1,9 @@
 #include <zephyr/kernel.h>
 
-#include "modules/server_module/nrf9160_setup.h"
-#include "modules/server_module/server_module.h"
-
 #include "common/van_info.h"
 #include "common/location.h"
 
-#include "modules/server_module/net_tools.h"
-
-#include "mbedtls/debug.h"
+#include "modules/net_module/net_module.h"
 
 // #define POSIX_MODE
 
@@ -41,9 +36,11 @@ int main() {
 		.van_id = 1
 	};
 
+	struct Location location = {.lat=213.12, .lon=20.123};
+
 	while (1) {
-		server_send_van_location(&van_info, (struct Location){.lat=213.12, .lon=20.123}, 100);
-		k_sleep(K_SECONDS(100));
+		forward_van_location(van_info, location, 100);
+		k_sleep(K_SECONDS(20));
 	}
 
 	while (1) {

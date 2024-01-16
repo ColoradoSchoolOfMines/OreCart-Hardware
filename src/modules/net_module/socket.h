@@ -15,4 +15,4 @@
 #define TLS_PSK_WITH_AES_128_CBC_SHA			0x008C
 #define TLS_PSK_WITH_AES_128_CCM_8				0xC0A8
 
-int connect_socket(sa_family_t family, struct sockaddr* addr, const char *server, int *sock);
+int connect_socket(int family, struct sockaddr* addr, const char* hostname, int* sock);

@@ -15,8 +15,6 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "server_module.h"
-
 static const char cert[] = {
 #include "../../../res/cert/ServerPublic.pem"
 };
@@ -25,8 +23,7 @@ static const char cert[] = {
 
 #define TLS_SEC_TAG 42
 
-void pdn_event_handler(uint8_t cid, enum pdn_event event, int reason)
-{
+void pdn_event_handler(uint8_t cid, enum pdn_event event, int reason) {
 	switch (event) {
 	case PDN_EVENT_CNEC_ESM:
 		printk("PDP context %d error, %s\n", cid, pdn_esm_strerror(reason));
@@ -52,8 +49,7 @@ void pdn_event_handler(uint8_t cid, enum pdn_event event, int reason)
 	}
 }
 
-int cert_provision(void)
-{
+int cert_provision(void) {
 	int err;
 	bool exists;
 	int mismatch;
@@ -120,9 +116,6 @@ void init_nrf9160_modem() {
 	}
 
 	printk("nRF9160 successfully connected to the LTE network!\r\n");
-	
-
-	k_sem_give(&is_modem_available);
 }
 
 #endif
