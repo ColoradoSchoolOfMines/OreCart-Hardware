@@ -8,7 +8,7 @@ std::string string_format(const char* fmt, ...){
     int n = vsnprintf(NULL, 0, fmt, args) + 1;
 
     // Create the string 
-    std::string str(new char[n]);
+    std::string str(n, '\0');
     vsnprintf((char*)str.data(), n, fmt, args);
 
     va_end(args);

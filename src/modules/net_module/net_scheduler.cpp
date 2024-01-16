@@ -9,7 +9,7 @@ static void _work_handler(k_work* work);
 static void _on_http_response(struct http_response *rsp, enum http_final_call done_signal, void* req_void);
 inline static bool _should_discard_task(struct NetRequestTask* task);
 inline static void _setup_http(struct NetRequestTask* task, uint8_t* recv_buf, struct http_request* http_req);
-inline static std::unique_ptr<addrinfo> _gen_addrinfo(std::string& host, uint16_t port);
+inline static std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> _gen_addrinfo(std::string& host, uint16_t port);
 inline static void _reschedule_task(NetRequestTask* task);
 
 // Standard header for all requests
@@ -20,7 +20,7 @@ const char *const HEADERS[] = {
 
 
 void start_scheduler() {
-    printk("Starting Network Scheduler...\r\n");
+    OC_LOG_INFO("Starting Network Scheduler...");
     k_work_queue_init(&net_work_queue);
     k_work_queue_start(&net_work_queue, net_stack_area,
         K_THREAD_STACK_SIZEOF(net_stack_area), PRIORITY,
@@ -30,7 +30,7 @@ void start_scheduler() {
 
 // schedule_request takes ownership of both request and scheduler_meta (and all children)
 void schedule_request(std::unique_ptr<Request> request, std::unique_ptr<SchedulerMeta> scheduler_meta) {
-    printk("[DEBUG] Scheduling Request\n");
+    OC_LOG_DEBUG("Scheduling Request");
 
     // Must create raw pointer here due to the C nature of Zephyr, which recommends.
     // This must therefore be cleaned up explcitly when the request is done.
@@ -46,13 +46,13 @@ void schedule_request(std::unique_ptr<Request> request, std::unique_ptr<Schedule
 
 // Process queue items, send them over to the server.
 static void _work_handler(k_work* work) {
-    printk("[DEBUG] Network Work Handler Called\n");
+    OC_LOG_DEBUG("Network Work Handler Called");
     k_sleep(K_SECONDS(2));
 
     struct NetRequestTask* task = CONTAINER_OF(work, struct NetRequestTask, work);
 
     if (_should_discard_task(task)) {
-        printk("[DEBUG] Discarding Expired Task\n");
+        OC_LOG_DEBUG("Discarding Expired Task");
         delete task;
         return;
     }
@@ -74,12 +74,8 @@ static void _work_handler(k_work* work) {
 
         OC_LOG_DEBUG("DNS Lookup %s %d", task->request->host.c_str(), task->request->port);
 
-        k_sleep(K_SECONDS(2));
-
         // DNS Lookup
-        std::unique_ptr<addrinfo> addr;
-        
-        addr = _gen_addrinfo(task->request->host, task->request->port);
+        auto addr = _gen_addrinfo(task->request->host, task->request->port);
 
         int err = connect_socket(addr->ai_family, addr->ai_addr, task->request->host.c_str(), &flight_req->sock);
         if (err) {
@@ -88,10 +84,7 @@ static void _work_handler(k_work* work) {
         }
 
         http_client_req(flight_req->sock, &flight_req->http_request, TIMEOUT, flight_req);
-
     } catch(...) {
-        printk("BYEBYE!!!!!\n");
-    
         try {
             // Something failing here is real bad, means we probably have 0 connectivity.
             // Wait some amount of time for things to resolve themselves.
@@ -115,38 +108,27 @@ static void _on_http_response(struct http_response *rsp, enum http_final_call do
 
     bool response_done = done_signal == HTTP_DATA_FINAL;
     if (!response_done) {
-        printk(".");
+        OC_LOG_INFO("Packet Received");
         return;
     }
 
-    printk("\r\n");
-    printk("[DEBUG] Received HTTP Response\n");
+    OC_LOG_DEBUG("Received HTTP Response");
 
     // If we failed, put this back on the request queue.
     if (rsp->http_status_code != 200) {
-        printk("Response failed with status code: %d\n", rsp->http_status_code);
+        OC_LOG_WARN("Response failed with status code: %d", rsp->http_status_code);
         _reschedule_task(req->net_request_task);
     } else {
-        printk("Response success with status code: %d\n", rsp->http_status_code);
+        OC_LOG_INFO("Response success with status code: %d", rsp->http_status_code);
 
         delete req->net_request_task;
         req->net_request_task = NULL;
     }
     
-    printk("A!!!!!\n");
-    k_sleep(K_SECONDS(2));
 
     close(req->sock);
-    printk("B!!!!!\n");
-    k_sleep(K_SECONDS(2));
-
     delete req;
-    printk("C!!!!!\n");
-    k_sleep(K_SECONDS(2));
-
     k_sem_give(&http_requests_sem);
-    printk("Done!!!!!\n");
-    k_sleep(K_SECONDS(2));
 }
 
 inline static bool _should_discard_task(struct NetRequestTask* task) {
@@ -169,7 +151,7 @@ inline static void _setup_http(struct NetRequestTask* task, uint8_t* recv_buf, s
 }
 
 // Allocate an addrinfo object for the caller, populating the host and port through a DNS lookup.
-inline static std::unique_ptr<addrinfo> _gen_addrinfo(std::string& host, uint16_t port) {
+inline static std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> _gen_addrinfo(std::string& host, uint16_t port) {
     addrinfo* res;
     addrinfo hints = {
 		.ai_family = AF_INET,
@@ -178,13 +160,13 @@ inline static std::unique_ptr<addrinfo> _gen_addrinfo(std::string& host, uint16_
 
     int err = getaddrinfo(host.c_str(), NULL, &hints, &res);
 	if (err) {
-		printk("getaddrinfo() failed, err %d   %d\n", errno, err);
+		OC_LOG_ERROR("getaddrinfo() failed, err %d   %d", errno, err);
 		throw "getaddrinfo() failed";
 	}
 
     ((struct sockaddr_in *)(res)->ai_addr)->sin_port = htons(port);
 
-    return std::unique_ptr<addrinfo>(res);
+    return std::unique_ptr<addrinfo, decltype(&freeaddrinfo)>(res, freeaddrinfo);
 }
 
 inline static void _reschedule_task(NetRequestTask* task) {

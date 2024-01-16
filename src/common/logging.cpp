@@ -7,7 +7,7 @@ void log_custom(const char* level, const char* format, ...) {
     va_start(args, format);
 
     printk("[%s] ", level);
-    printk(format, args);
+    vprintk(format, args);
 
     va_end(args);
 }

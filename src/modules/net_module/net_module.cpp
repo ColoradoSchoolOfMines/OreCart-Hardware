@@ -46,7 +46,7 @@ void _on_forward_van_location_fail() {}
 
 static std::unique_ptr<Request> _create_http_request(std::string url, std::unique_ptr<uint8_t []> payload,
             uint32_t payload_size, enum http_method request_type) {
-    printk("[DEBUG] Creating Request \n");
+    OC_LOG_DEBUG("Creating Request");
 
     std::unique_ptr<Request> req(new Request);
 
@@ -61,7 +61,7 @@ static std::unique_ptr<Request> _create_http_request(std::string url, std::uniqu
 }
 
 static std::unique_ptr<SchedulerMeta> _create_scheduler_metadata(uint64_t expiration, uint8_t max_tries) {
-    printk("[DEBUG] Creating Scheduler Meta \n");
+    OC_LOG_DEBUG("Creating Scheduler Meta");
 
     std::unique_ptr<SchedulerMeta> meta(new SchedulerMeta);
 

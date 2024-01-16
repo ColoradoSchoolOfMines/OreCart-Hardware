@@ -18,7 +18,7 @@ static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 VanInfo van_info;
 
 int main() {
-	printk("Welcome to the OreCart Hardware Project!\r\n");
+	OC_LOG_INFO("Welcome to the OreCart Hardware Project!");
     int ret;
 
 	net_module_init();
