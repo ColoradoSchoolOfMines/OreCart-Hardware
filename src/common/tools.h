@@ -1,12 +1,14 @@
 #pragma once
+#include <string>
+#include <memory>
 
-#include <stdint.h>
+#include <cstdarg>
 
-void uint8_t_to_str(uint8_t num, char* buff) {
-    uint8_t i = 0;
-    while (num != 0) {
-        buff[i++] = '0' + num % 10;
-        num /= 10;
-    }
-    buff[i] = '\0';
+#define UNIX_DELAY_MS(x) k_uptime_get() + x
+
+template<typename D, typename B>
+std::unique_ptr<D> static_cast_ptr(std::unique_ptr<B>& base) {
+    return std::unique_ptr<D>(static_cast<D*>(base.release()));
 }
+
+std::string string_format(const char* fmt, ...);
