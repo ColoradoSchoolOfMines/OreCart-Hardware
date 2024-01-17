@@ -23,6 +23,9 @@ set(SRC_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/net_module/nrf9160_setup.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/net_module/net_module.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/net_module/net_scheduler.cpp
+
+    # Display Module
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/display_module/display_test.cpp
 )
 
 # target_include_directories(app PRIVATE
