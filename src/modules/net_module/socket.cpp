@@ -3,8 +3,7 @@
 #include <zephyr/net/net_ip.h>
 
 #include "socket.h"
-
-#define TLS_SEC_TAG 42
+#include "net_module.h"
 
 sec_tag_t sec_tag_list[] = {
 	TLS_SEC_TAG,
@@ -56,7 +55,7 @@ static int setup_socket(int family, const char *hostname, int *sock) {
 		printk("Failed to set TLS_HOSTNAME option (%d)", -errno);
 	}
 
-	int peer_verify = 0;
+	int peer_verify = 1;
 	ret = setsockopt(*sock, SOL_TLS, TLS_PEER_VERIFY, &peer_verify, sizeof(peer_verify));
 	if (ret < 0) {
 		printk("Failed to set to NOVERIFY!\r\n");

@@ -19,9 +19,9 @@ void forward_van_location(VanInfo& vanInfo, Location& location, uint64_t ts) {
     OC_LOG_INFO("Forwarding Van Location...\n");
     // Order types from largest to smallest for optimal data packing.
     struct VanLocationPayload {
+        uint64_t ts;
         double lat;
         double lon;
-        uint64_t ts;
     };
 
     VanLocationPayload* payload = new VanLocationPayload;

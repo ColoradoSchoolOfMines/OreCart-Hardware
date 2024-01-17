@@ -1,17 +1,13 @@
 #include <zephyr/kernel.h>
+#include <zephyr/drivers/gpio.h>
 
 #include "common/van_info.h"
 #include "common/location.h"
 
 #include "modules/net_module/net_module.h"
 
-// #define POSIX_MODE
-
-#ifndef POSIX_MODE
-#include <zephyr/drivers/gpio.h>
 #define LED0_NODE DT_ALIAS(led0)
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
-#endif
 
 #define SLEEP_TIME_MS 2000
 

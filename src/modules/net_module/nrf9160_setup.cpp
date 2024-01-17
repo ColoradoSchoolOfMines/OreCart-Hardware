@@ -1,8 +1,6 @@
 // The nRF9160 is one odd duck in the flock.
 // Unlike its friends, it refuses to bring a driver dish to the kernel potluck, so we're DIY-ing it right here.
 
-#if defined(CONFIG_NRF_MODEM_LIB)
-
 #include <modem/lte_lc.h>
 #include <modem/modem_info.h>
 #include <modem/modem_key_mgmt.h>
@@ -10,18 +8,25 @@
 #include <modem/pdn.h>
 #include <nrf_errno.h>
 #include <nrf_modem.h>
-#include <zephyr/logging/log.h>
+
+#include "net_module.h"
 
 #include <stdio.h>
 #include <errno.h>
 
-static const char cert[] = {
+static const char server_cert[] = {
 #include "../../../res/cert/ServerPublic.pem"
 };
 
-// NRF_MODEM_LIB_ON_INIT(orecart_init_hook, on_modem_lib_init, NULL);
+static const char hardware_private[] = {
+#include "../../../res/cert/HardwarePrivateKey.pem"
+};
 
-#define TLS_SEC_TAG 42
+static const char hardware_public[] = {
+#include "../../../res/cert/HardwarePublicKey.pem"
+};
+
+// NRF_MODEM_LIB_ON_INIT(orecart_init_hook, on_modem_lib_init, NULL);
 
 void pdn_event_handler(uint8_t cid, enum pdn_event event, int reason) {
 	switch (event) {
@@ -52,7 +57,6 @@ void pdn_event_handler(uint8_t cid, enum pdn_event event, int reason) {
 int cert_provision(void) {
 	int err;
 	bool exists;
-	int mismatch;
 
 	/* It may be sufficient for you application to check whether the correct
 	 * certificate is provisioned with a given tag directly using modem_key_mgmt_cmp().
@@ -66,8 +70,15 @@ int cert_provision(void) {
 	}
 
 	if (exists) {
-		mismatch = modem_key_mgmt_cmp(TLS_SEC_TAG, MODEM_KEY_MGMT_CRED_TYPE_CA_CHAIN, cert,
-					      strlen(cert));
+		int mismatch = modem_key_mgmt_cmp(TLS_SEC_TAG, MODEM_KEY_MGMT_CRED_TYPE_CA_CHAIN, server_cert,
+					      strlen(server_cert));
+		
+		mismatch &= modem_key_mgmt_cmp(TLS_SEC_TAG, MODEM_KEY_MGMT_CRED_TYPE_PRIVATE_CERT, hardware_private,
+					      strlen(hardware_private));
+		
+		mismatch &= modem_key_mgmt_cmp(TLS_SEC_TAG, MODEM_KEY_MGMT_CRED_TYPE_PUBLIC_CERT, hardware_public,
+					      strlen(hardware_public));
+
 		if (!mismatch) {
 			printk("Certificate match!\n");
 			return 0;
@@ -83,10 +94,23 @@ int cert_provision(void) {
 	printk("Provisioning certificate\n");
 
 	/*  Provision certificate to the modem */
-	err = modem_key_mgmt_write(TLS_SEC_TAG, MODEM_KEY_MGMT_CRED_TYPE_CA_CHAIN, cert,
-				   sizeof(cert) - 1);
+	err = modem_key_mgmt_write(TLS_SEC_TAG, MODEM_KEY_MGMT_CRED_TYPE_CA_CHAIN, server_cert, strlen(server_cert));
 	if (err) {
 		printk("Failed to provision certificate, err %d\n", err);
+		return err;
+	}
+
+	/* Provision Private Certificate. */
+	err = modem_key_mgmt_write(TLS_SEC_TAG, MODEM_KEY_MGMT_CRED_TYPE_PRIVATE_CERT, hardware_private, strlen(hardware_private));
+	if (err) {
+		printk("NRF_CLOUD_CLIENT_PRIVATE_KEY err: %d", err);
+		return err;
+	}
+
+	/* Provision Public Certificate. */
+	err = modem_key_mgmt_write(TLS_SEC_TAG, MODEM_KEY_MGMT_CRED_TYPE_PUBLIC_CERT, hardware_public, strlen(hardware_public));
+	if (err) {
+		printk("NRF_CLOUD_CLIENT_PUBLIC_CERTIFICATE err: %d", err);
 		return err;
 	}
 
@@ -117,5 +141,3 @@ void init_nrf9160_modem() {
 
 	printk("nRF9160 successfully connected to the LTE network!\r\n");
 }
-
-#endif
