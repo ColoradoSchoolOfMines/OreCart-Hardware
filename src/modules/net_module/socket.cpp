@@ -3,8 +3,7 @@
 #include <zephyr/net/net_ip.h>
 
 #include "socket.h"
-
-#define TLS_SEC_TAG 42
+#include "net_module.h"
 
 sec_tag_t sec_tag_list[] = {
 	TLS_SEC_TAG,

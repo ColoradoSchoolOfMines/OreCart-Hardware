@@ -9,6 +9,8 @@
 #include "../../common/van_info.h"
 #include "../../common/logging.h"
 
+#define TLS_SEC_TAG 42
+
 #define SERVER_HOST "wpodev.intergonic.com"
 #define SERVER_PORT 8888
 
@@ -28,7 +30,7 @@ void net_module_init();
 // Send the current van location to the server.
 // @location   -  a lat/long position of the van
 // returns success boolean
-void forward_van_location(VanInfo& vanInfo, Location& location, uint64_t ts);
+void forward_van_location(struct VanInfo& vanInfo, Location& location, uint64_t ts);
 
 // Send the current ridership to the server.
 // @ridership_delta   -   how many people got on/off the bus, negative for off and positive for on.

@@ -5,9 +5,7 @@
 #include <zephyr/net/socket.h>
 
 // #include <memory>
-extern "C" {
 #include "socket.h"
-}
 
 #include "../../common/tools.h"
 #include "../../common/logging.h"

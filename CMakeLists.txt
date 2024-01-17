@@ -19,7 +19,7 @@ set(SRC_FILES
 
     ## Modules
     # Server Module
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/net_module/socket.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/net_module/socket.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/net_module/nrf9160_setup.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/net_module/net_module.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/net_module/net_scheduler.cpp
