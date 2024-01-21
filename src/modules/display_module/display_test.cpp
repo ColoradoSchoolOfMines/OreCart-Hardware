@@ -109,6 +109,7 @@ void display_test() {
 
     display_get_capabilities(display, &capabilities);
 
+<<<<<<< HEAD
 	if (display_set_pixel_format(display, PIXEL_FORMAT_MONO10) != 0) {
 		if (display_set_pixel_format(display, PIXEL_FORMAT_MONO01) != 0) {
 			printk("Failed to set required pixel format");
@@ -188,4 +189,28 @@ static int _config_btn(const gpio_dt_spec* btn) {
 	ret &= gpio_pin_interrupt_configure_dt(btn, GPIO_INT_EDGE_TO_ACTIVE);
 	if (ret) return ret;
     return 0;
+=======
+    switch (capabilities.current_pixel_format) {
+        case PIXEL_FORMAT_RGB_888:
+            printk("PIXEL_FORMAT_RGB_888\r\n");
+            break;
+        case PIXEL_FORMAT_MONO01:
+            printk("PIXEL_FORMAT_MONO01\r\n");
+            break;
+        case PIXEL_FORMAT_MONO10:
+            printk("PIXEL_FORMAT_MONO10\r\n");
+            break;
+        case PIXEL_FORMAT_ARGB_8888:
+            printk("PIXEL_FORMAT_ARGB_8888\r\n");
+            break;
+        case PIXEL_FORMAT_RGB_565:
+            printk("PIXEL_FORMAT_RGB_565\r\n");
+            break;
+        case PIXEL_FORMAT_BGR_565:
+            printk("PIXEL_FORMAT_BGR_565\r\n");
+            break;
+        default:
+            printk("Unknown pixel format.\r\n");
+    }
+>>>>>>> 9ee93bd (Add full pixel format detection)
 }
