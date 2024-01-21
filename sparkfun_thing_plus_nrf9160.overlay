@@ -4,10 +4,10 @@
 	};
 
     aliases {
-        left_button = &button0;
-        right_button = &button1;
+        leftbutton = &button0;
+        rightbutton = &button1;
 
-        select_button = &button2;
+        selectbutton = &button2;
     };
 
     buttons {

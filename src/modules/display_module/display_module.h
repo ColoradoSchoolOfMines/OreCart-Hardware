@@ -9,3 +9,6 @@
 #define RIDERSHIP_MSG "Current Ridership:"
 
 void display_test();
+
+void draw_route_selection_screen();
+void draw_ridership_screen();

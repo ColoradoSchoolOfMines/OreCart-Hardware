@@ -12,9 +12,9 @@
 
 #include "../../common/tools.h"
 
-#define LEFT_BTN_NODE	DT_ALIAS(left_button)
-#define RIGHT_BTN_NODE  DT_ALIAS(right_button)
-#define SELECT_BTN_NODE  DT_ALIAS(select_button)
+#define LEFT_BTN_NODE	DT_ALIAS(leftbutton)
+#define RIGHT_BTN_NODE  DT_ALIAS(rightbutton)
+#define SELECT_BTN_NODE  DT_ALIAS(selectbutton)
 
 static const struct gpio_dt_spec left_btn = GPIO_DT_SPEC_GET_OR(LEFT_BTN_NODE, gpios, {0});
 static const struct gpio_dt_spec right_btn = GPIO_DT_SPEC_GET_OR(RIGHT_BTN_NODE, gpios, {0});
@@ -48,7 +48,7 @@ enum ButtonMode {
 uint8_t currently_selected_route = 0;
 uint8_t current_ridership = 0;
 
-static int _config_btn(gpio_dt_spec& btn);
+static int _config_btn(const gpio_dt_spec* btn);
 
 void button_left_pressed(const struct device *dev, struct gpio_callback *cb, uint32_t pins) {
     switch (button_mode) {
@@ -87,15 +87,15 @@ void button_select_pressed(const struct device *dev, struct gpio_callback *cb, u
 }
 
 void display_test() {
-    _config_btn(left_btn);
+    _config_btn(&left_btn);
     gpio_init_callback(&left_button_cb_data, button_left_pressed, BIT(left_btn.pin));
 	gpio_add_callback(left_btn.port, &left_button_cb_data);
 
-    _config_btn(right_btn);
+    _config_btn(&right_btn);
     gpio_init_callback(&right_button_cb_data, button_right_pressed, BIT(right_btn.pin));
 	gpio_add_callback(right_btn.port, &right_button_cb_data);
 
-    _config_btn(select_btn);
+    _config_btn(&select_btn);
     gpio_init_callback(&select_button_cb_data, button_select_pressed, BIT(select_btn.pin));
 	gpio_add_callback(select_btn.port, &select_button_cb_data);
     
@@ -182,10 +182,10 @@ void draw_ridership_screen() {
 	}
 }
 
-static int _config_btn(const gpio_dt_spec& btn) {
-    int ret = gpio_pin_configure_dt(&btn, GPIO_INPUT);
+static int _config_btn(const gpio_dt_spec* btn) {
+    int ret = gpio_pin_configure_dt(btn, GPIO_INPUT);
     if (ret) return ret;
-	ret &= gpio_pin_interrupt_configure_dt(&btn, GPIO_INT_EDGE_TO_ACTIVE);
+	ret &= gpio_pin_interrupt_configure_dt(btn, GPIO_INT_EDGE_TO_ACTIVE);
 	if (ret) return ret;
-
+    return 0;
 }
