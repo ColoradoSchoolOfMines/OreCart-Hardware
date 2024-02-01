@@ -92,6 +92,34 @@ newtmgr -c serial reset
 
 The first command actually flashes the ROM of the board, while the second resets the board so the project is actually executed.
 
+### Connecting to the board using minicom
+
+#### Windows
+
+Install WSL Then follow the Linux install instructions below for your WSL install.
+
+#### Linux
+
+Follow the install for your distro's package manager.
+
+(Nix OS)[https://mynixos.com/nixpkgs/package/minicom]
+(ArchLinux)[https://security.archlinux.org/package/minicom]
+(Ubuntu)[https://help.ubuntu.com/community/Minicom]
+(Debian)[https://packages.debian.org/search?keywords=minicom]
+
+#### What command to use
+
+`-D` - specifies the port
+`-b` - specifies the baud rate
+
+```
+minicom -D /dev/ttyUSB0 -b 15200
+```
+
+#### Disconnecting
+
+Press Ctrl A, Then press Q, Select yes, Pray your terminal comes back :3
+
 # Developing without a board
 
 This can be done with the POSIX target.
