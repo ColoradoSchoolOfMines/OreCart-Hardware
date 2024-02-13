@@ -46,12 +46,10 @@ int main() {
 	};
 
 	while (1) {
-		// printk("Beep\r\n");
-	#ifndef POSIX_MODE
-		gpio_pin_toggle_dt(&led);
-	#endif
+		
+		
 		server_send_van_location(&van_info, (struct Location){.lat = 213.12, .lon=20.123}, 100);
-		k_sleep(K_SECONDS(50));
+		k_sleep(K_SECONDS(1));
 	}
 
 	while (1) {

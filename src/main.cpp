@@ -5,6 +5,7 @@
 #include "common/location.h"
 
 #include "modules/net_module/net_module.h"
+#include "modules/tracking_module/tracking_module.h"
 
 #define LED0_NODE DT_ALIAS(led0)
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
@@ -32,11 +33,13 @@ int main() {
 		.van_id = 1
 	};
 
+	// Default location.
 	struct Location location = {.lat=213.12, .lon=20.123};
 
 	while (1) {
+		location_gnss_high_accuracy_get(void)
 		forward_van_location(van_info, location, 100);
-		k_sleep(K_SECONDS(20));
+		k_sleep(K_SECONDS(1));
 	}
 
 	while (1) {
