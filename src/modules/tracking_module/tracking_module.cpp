@@ -2,7 +2,8 @@
 #include <zephyr/kernel.h>
 
 #include "tracking_module.h"
-#include "../../common/location.h"
+
+static K_SEM_DEFINE(location_event, 0, 1);
 
 Location last_location;
 
@@ -17,8 +18,8 @@ static void location_event_handler(const struct location_event_data *event_data)
 		printk("  longitude: %.06f\n", event_data->location.longitude);
 		printk("  accuracy: %.01f m\n", event_data->location.accuracy);
 
-        last_location.latitude = event_data->location.latitude;
-        last_location.longitude = event_data->location.longitude;
+        last_location.lat = event_data->location.latitude;
+        last_location.lon = event_data->location.longitude;
 
 		if (event_data->location.datetime.valid) {
 			printk("  date: %04d-%02d-%02d\n",
@@ -60,10 +61,15 @@ static void location_event_handler(const struct location_event_data *event_data)
 }
 
 void tracking_module_init() {
-    err = location_init(location_event_handler);
+    int err = location_init(location_event_handler);
+
+	if (err) {
+		printk("Error initializing the tracking module\r\n");
+		return;
+	}
 }
 
-static Location location_gnss_high_accuracy_get() {
+Location location_gnss_high_accuracy_get() {
 	int err;
 	struct location_config config;
 	enum location_method methods[] = {LOCATION_METHOD_GNSS};
@@ -76,7 +82,11 @@ static Location location_gnss_high_accuracy_get() {
 	err = location_request(&config);
 	if (err) {
 		printk("Requesting location failed, error: %d\n", err);
-		return;
+
+		Location location;
+		location.lat = 0.0;
+		location.lon = 0.0;
+		return location;
 	}
 
 	_location_event_wait();

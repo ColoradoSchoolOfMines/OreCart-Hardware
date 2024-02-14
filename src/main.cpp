@@ -37,7 +37,7 @@ int main() {
 	struct Location location = {.lat=213.12, .lon=20.123};
 
 	while (1) {
-		location_gnss_high_accuracy_get(void)
+		location = location_gnss_high_accuracy_get();
 		forward_van_location(van_info, location, 100);
 		k_sleep(K_SECONDS(1));
 	}

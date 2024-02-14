@@ -25,7 +25,7 @@ set(SRC_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/net_module/net_scheduler.cpp
 
     # Tracking Module
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/tracking_module/tracking_module.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/tracking_module/tracking_module.cpp
 )
 
 # target_include_directories(app PRIVATE
