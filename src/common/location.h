@@ -1,6 +1,6 @@
 #pragma once
 
 struct Location {
-    double lat;
-    double lon;
+  double lat;
+  double lon;
 };

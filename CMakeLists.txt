@@ -18,11 +18,14 @@ set(SRC_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/common/tools.cpp
 
     ## Modules
-    # Server Module
+    # Net Module
     ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/net_module/socket.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/net_module/nrf9160_setup.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/net_module/net_module.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/net_module/net_scheduler.cpp
+
+    # Tracking Module
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/modules/tracking_module/tracking_module.cpp
 )
 
 # target_include_directories(app PRIVATE
