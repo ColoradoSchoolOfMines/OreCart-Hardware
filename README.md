@@ -1,4 +1,6 @@
 # Ore Cart Hardware
+## Warning: This repository is now archived and read-only! Please use the [monorepo](https://github.com/OreCart/OreCart-App) for any future hardware commits.
+
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
